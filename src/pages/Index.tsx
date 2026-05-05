@@ -1,16 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import MainLayout from "@/layouts/MainLayout";
+import Hero from "@/components/Hero";
+import About from "@/components/About";
+import WorkPreview from "@/components/WorkPreview";
+import Services from "@/components/Services";
+import Contact from "@/components/Contact";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const el = document.querySelector(hash);
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 50);
+    }
+  }, [hash]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <MainLayout>
+      <Hero />
+      <About />
+      <WorkPreview />
+      <Services />
+      <Contact />
+    </MainLayout>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
