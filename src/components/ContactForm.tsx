@@ -57,14 +57,17 @@ const ContactForm = () => {
     setErrors({});
     setLoading(true);
     try {
-      const payload = {
-        ...parsed.data,
-        telefono: parsed.data.telefono || null,
-        tipo_servicio: parsed.data.tipo_servicio || null,
-        fecha: parsed.data.fecha || null,
-        presupuesto: parsed.data.presupuesto || null,
-      };
-      const { error } = await supabase.from("contact_submissions").insert(payload);
+      const d = parsed.data;
+      const { error } = await supabase.from("contact_submissions").insert({
+        nombre: d.nombre,
+        apellido: d.apellido,
+        email: d.email,
+        mensaje: d.mensaje,
+        telefono: d.telefono || null,
+        tipo_servicio: d.tipo_servicio || null,
+        fecha: d.fecha || null,
+        presupuesto: d.presupuesto || null,
+      });
       if (error) throw error;
       toast.success("¡Mensaje enviado! Te responderé muy pronto.");
       setData(initial);
