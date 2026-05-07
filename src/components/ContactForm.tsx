@@ -58,7 +58,8 @@ const ContactForm = () => {
     setLoading(true);
     try {
       const d = parsed.data;
-      const { error } = await supabase.from("contact_submissions").insert({
+      console.log("📤 Enviando datos a Supabase:", d);
+      const { data: insertedData, error } = await supabase.from("contacts").insert({
         nombre: d.nombre,
         apellido: d.apellido,
         email: d.email,
@@ -68,11 +69,15 @@ const ContactForm = () => {
         fecha: d.fecha || null,
         presupuesto: d.presupuesto || null,
       });
-      if (error) throw error;
+      console.log("✅ Respuesta de Supabase - Data:", insertedData, "Error:", error);
+      if (error) {
+        console.error("❌ Error de Supabase:", error);
+        throw error;
+      }
       toast.success("¡Mensaje enviado! Te responderé muy pronto.");
       setData(initial);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error al enviar:", err);
       toast.error("No pudimos enviar el mensaje. Intenta de nuevo.");
     } finally {
       setLoading(false);

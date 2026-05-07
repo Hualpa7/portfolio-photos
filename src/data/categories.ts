@@ -1,4 +1,14 @@
 export type CategorySlug = "bodas" | "cumpleanos" | "deportiva" | "sesiones" | "arte";
+import d1 from "../../public/d1.jpeg";
+import d2 from "../../public/d2.jpeg";
+import d3 from "../../public/d3.jpeg";
+
+// Convertir enlaces de Google Drive "file/d/ID/view" a URL directa usable en <img>
+const driveToDirect = (url: string) => {
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (!m) return url;
+  return `https://drive.google.com/uc?export=view&id=${m[1]}`;
+};
 
 export interface Category {
   slug: CategorySlug;
@@ -24,16 +34,11 @@ export const categories: Category[] = [
     description: "Historias de amor capturadas con sensibilidad y elegancia.",
     longDescription:
       "Documentamos cada momento de tu boda con un enfoque cinematográfico y discreto, desde los preparativos hasta la última pieza musical de la noche.",
-    cover: u("photo-1519741497674-611481863552"),
+    cover: `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/1000397786.jpg.webp`,
     gallery: [
-      u("photo-1519741497674-611481863552"),
-      u("photo-1606800052052-a08af7148866"),
-      u("photo-1511795409834-ef04bbd61622"),
-      u("photo-1465495976277-4387d4b0b4c6"),
-      u("photo-1519225421980-715cb0215aed"),
-      u("photo-1525258946800-98cfd641d0de"),
-      u("photo-1591604466107-ec97de577aff"),
-      u("photo-1583939003579-730e3918a45a"),
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/1000392982.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/1000397786.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/1000398104.jpg.webp`,
     ],
   },
   {
@@ -43,14 +48,15 @@ export const categories: Category[] = [
     description: "Celebraciones llenas de color, gestos y emoción.",
     longDescription:
       "Cubrimos cumpleaños de todas las edades, priorizando momentos espontáneos y la complicidad entre invitados.",
-    cover: u("photo-1530103862676-de8c9debad1d"),
+    cover: `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/IMG_0436.webp`,
     gallery: [
-      u("photo-1530103862676-de8c9debad1d"),
-      u("photo-1464349095431-e9a21285b5f3"),
-      u("photo-1513151233558-d860c5398176"),
-      u("photo-1576919228236-a097c32a5cd4"),
-      u("photo-1527529482837-4698179dc6ce"),
-      u("photo-1496024840928-4c417adf211d"),
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/B46A7947.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/B46A8042.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/B46A8136.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/B46A8160.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/B46A8177.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/IMG_0306.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/cumpleanios/IMG_0436.webp`,
     ],
   },
   {
@@ -60,14 +66,21 @@ export const categories: Category[] = [
     description: "Movimiento, intensidad y precisión en cada disparo.",
     longDescription:
       "Capturamos la acción en su pico, con equipo especializado para cubrir competiciones, entrenamientos y retratos atléticos.",
-    cover: u("photo-1517649763962-0c623066013b"),
+    cover:       `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/IMG_8800-2.webp`,
     gallery: [
-      u("photo-1517649763962-0c623066013b"),
-      u("photo-1461896836934-ffe607ba8211"),
-      u("photo-1552674605-db6ffd4facb5"),
-      u("photo-1530549387789-4c1017266635"),
-      u("photo-1546519638-68e109498ffc"),
-      u("photo-1574629810360-7efbbe195018"),
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000352507.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000356158.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000384101.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000384112.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000387539.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000387507.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000384681.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/1000384670.jpg.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/B46A1821.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/B46A1820.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/B46A2187.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/B46A5545.webp`,
+      `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/deportes/IMG_8800-2.webp`,
     ],
   },
   {
@@ -77,7 +90,7 @@ export const categories: Category[] = [
     description: "Retratos personales, familiares y editoriales.",
     longDescription:
       "Sesiones cuidadosamente dirigidas en estudio o en exteriores, con asesoría de estilismo y locaciones.",
-    cover: u("photo-1524504388940-b1c1722653e1"),
+    cover: `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/sesiones/1000280060.jpg.webp`,
     gallery: [
       u("photo-1524504388940-b1c1722653e1"),
       u("photo-1488161628813-04466f872be2"),
@@ -94,7 +107,7 @@ export const categories: Category[] = [
     description: "Proyectos personales y exploraciones visuales.",
     longDescription:
       "Una colección de trabajos de autor donde la fotografía se convierte en lenguaje y experimentación.",
-    cover: u("photo-1502082553048-f009c37129b9"),
+    cover: `https://nxggkjariyyxjueminyb.supabase.co/storage/v1/object/public/portfolio-photos/arte/1000265848.jpg.webp`,
     gallery: [
       u("photo-1502082553048-f009c37129b9"),
       u("photo-1500534314209-a25ddb2bd429"),

@@ -43,7 +43,7 @@ const Navbar = () => {
           className="font-display text-xl tracking-tight md:text-2xl"
           aria-label="Estudio Lumen — inicio"
         >
-          Estudio<span className="text-primary">Lumen</span>
+          Fotografia<span className="text-primary">FGH</span>
         </Link>
 
         {/* Desktop */}

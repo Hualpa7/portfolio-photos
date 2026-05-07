@@ -10,6 +10,7 @@ import Cumpleanos from "./pages/trabajos/Cumpleanos.tsx";
 import Deportiva from "./pages/trabajos/Deportiva.tsx";
 import Sesiones from "./pages/trabajos/Sesiones.tsx";
 import Arte from "./pages/trabajos/Arte.tsx";
+import 'animate.css';
 
 const queryClient = new QueryClient();
 

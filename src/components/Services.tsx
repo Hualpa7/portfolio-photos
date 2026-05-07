@@ -8,7 +8,7 @@ const Services = () => {
         <div className="max-w-2xl">
           <p className="eyebrow">Servicios</p>
           <h2 className="mt-4 font-display text-4xl md:text-5xl">
-            Tarifas claras, sin sorpresas.
+            Tarifas claras
           </h2>
           <p className="mt-4 text-muted-foreground">
             Cada paquete incluye edición profesional y entrega digital. ¿Necesitas algo

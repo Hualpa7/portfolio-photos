@@ -1,20 +1,53 @@
-CREATE TABLE public.contact_submissions (
+-- Tabla de contactos del formulario
+CREATE TABLE public.contacts (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-  nombre TEXT NOT NULL,
-  apellido TEXT NOT NULL,
-  email TEXT NOT NULL,
-  telefono TEXT,
-  tipo_servicio TEXT,
+  nombre VARCHAR(80) NOT NULL,
+  apellido VARCHAR(80) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  telefono VARCHAR(40),
+  tipo_servicio VARCHAR(60),
   fecha DATE,
-  presupuesto TEXT,
+  presupuesto VARCHAR(60),
   mensaje TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
+-- Índices para búsquedas rápidas
+CREATE INDEX idx_contacts_email ON public.contacts(email);
+CREATE INDEX idx_contacts_created_at ON public.contacts(created_at DESC);
 
-CREATE POLICY "Anyone can submit contact form"
-  ON public.contact_submissions
+-- RLS para tabla de contactos
+ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
+
+-- Permitir que usuarios anónimos inserten contactos
+CREATE POLICY "Allow anonymous insert" ON public.contacts
   FOR INSERT
-  TO anon, authenticated
+  WITH CHECK (true);
+
+-- Tabla de fotos del portafolio
+CREATE TABLE public.portfolio_photos (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  url TEXT NOT NULL,
+  category VARCHAR(60),
+  file_name VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices para portfolio_photos
+CREATE INDEX idx_portfolio_photos_category ON public.portfolio_photos(category);
+CREATE INDEX idx_portfolio_photos_created_at ON public.portfolio_photos(created_at DESC);
+
+-- RLS para portfolio_photos
+ALTER TABLE public.portfolio_photos ENABLE ROW LEVEL SECURITY;
+
+-- Permitir lectura pública de fotos
+CREATE POLICY "Allow public read" ON public.portfolio_photos
+  FOR SELECT
+  USING (true);
+
+-- Permitir inserción de fotos
+CREATE POLICY "Allow insert photos" ON public.portfolio_photos
+  FOR INSERT
   WITH CHECK (true);

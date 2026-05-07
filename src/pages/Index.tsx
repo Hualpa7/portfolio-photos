@@ -6,6 +6,7 @@ import About from "@/components/About";
 import WorkPreview from "@/components/WorkPreview";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
+import 'animate.css';
 
 const Index = () => {
   const { hash } = useLocation();

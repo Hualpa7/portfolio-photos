@@ -18,11 +18,11 @@ const Contact = () => {
           <ul className="mt-8 space-y-3 text-sm">
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-primary" />
-              hola@estudiolumen.com
+              hualpahualpa@gmail.com
             </li>
             <li className="flex items-center gap-3">
               <Instagram className="h-4 w-4 text-primary" />
-              @estudiolumen
+              @_gulp_
             </li>
             <li className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-primary" />
