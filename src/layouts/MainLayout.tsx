@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WhatsAppFloat from "@/components/ui/whatsappFloat";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <WhatsAppFloat />
     </div>
   );
 };

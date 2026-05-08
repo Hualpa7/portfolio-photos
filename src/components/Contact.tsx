@@ -22,7 +22,9 @@ const Contact = () => {
             </li>
             <li className="flex items-center gap-3">
               <Instagram className="h-4 w-4 text-primary" />
-              @_gulp_
+              <a href="https://www.instagram.com/__.gulp.__?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">
+                @__.gulp.__
+              </a>
             </li>
             <li className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-primary" />
