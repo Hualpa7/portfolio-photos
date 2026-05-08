@@ -41,7 +41,7 @@ const Navbar = () => {
         <Link
           to="/"
           className="font-display text-xl tracking-tight md:text-2xl"
-          aria-label="Estudio Lumen — inicio"
+          aria-label="FotografiaFGH— inicio"
         >
           Fotografia<span className="text-primary">FGH</span>
         </Link>

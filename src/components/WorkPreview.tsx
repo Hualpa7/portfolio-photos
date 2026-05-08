@@ -10,7 +10,7 @@ const WorkPreview = () => {
         <ScrollReveal variant="slideLeft"  duration={1} once={false}>
         <div className="flex items-end justify-between gap-6">
           <div>
-            <p className="eyebrow">Trabajos</p>
+            <p className="eyebrow text-lg">Trabajos</p>
             <h2 className="mt-4 font-display text-4xl md:text-5xl">
               Categorías que cuento mejor.
             </h2>

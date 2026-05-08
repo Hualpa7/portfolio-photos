@@ -39,9 +39,9 @@ const CategoryPage = ({ category }: CategoryPageProps) => {
             to="/#trabajos"
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-4 w-4" /> Volver a trabajos
+            <ArrowLeft className="h-4 w-4 text-lg" /> Volver a trabajos
           </Link>
-          <p className="eyebrow mt-8">Trabajos</p>
+          <p className="eyebrow mt-8 text-lg">Trabajos</p>
           <h1 className="mt-4 font-display text-5xl md:text-6xl">{category.title}</h1>
           <p className="mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
             {category.longDescription}

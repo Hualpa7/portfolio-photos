@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container-editorial grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
           <Link to="/" className="font-display text-xl">
-            Estudio<span className="text-primary">Lumen</span>
+            Fotografia<span className="text-primary">FGH</span>
           </Link>
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">
             Fotografía profesional con sensibilidad editorial y cobertura integral.
@@ -38,7 +38,7 @@ const Footer = () => {
       </div>
 
       <div className="container-editorial mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Estudio Lumen. Todos los derechos reservados.
+        © {new Date().getFullYear()} Fotografia FGH. Todos los derechos reservados.
       </div>
     </footer>
   );

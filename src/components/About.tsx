@@ -28,7 +28,7 @@ const About = () => {
           once={false}
         >
           <div className="flex flex-col justify-center">
-            <p className="eyebrow text-sm">Sobre mí</p>
+            <p className="eyebrow text-lg">Sobre mí</p>
             <h2 className="mt-4 font-display text-4xl leading-tight md:text-5xl">
               Cinco años contando historias con luz.
             </h2>
