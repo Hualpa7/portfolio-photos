@@ -60,7 +60,7 @@ export const ImageModal = memo(({ isOpen, onClose, imageSrc, imageAlt }: ImageMo
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={handleBackdropClick}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 cursor-pointer"
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 cursor-pointer"
             aria-hidden="true"
           />
 
@@ -99,7 +99,7 @@ export const ImageModal = memo(({ isOpen, onClose, imageSrc, imageAlt }: ImageMo
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={onClose}
-              className="absolute top-4 right-4 md:top-8 md:right-8 p-2 rounded-sm bg-white/10 hover:bg-white/20 transition-colors z-10"
+              className="absolute top-4 right-4 md:top-8 md:right-8 p-2 rounded-sm bg-red-900 hover:bg-red-700 transition-colors z-10"
               aria-label="Cerrar modal (ESC)"
               title="Presiona ESC para cerrar"
             >

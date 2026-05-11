@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { categories } from "@/data/categories";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 const navLinks = [
   { label: "Sobre mí", href: "/#sobre-mi" },
@@ -33,7 +34,7 @@ const Navbar = () => {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         scrolled || open
-          ? "bg-background/85 backdrop-blur-md border-b border-border"
+          ? "bg-background/75 backdrop-blur-md border-b border-border"
           : "bg-transparent"
       )}
     >
@@ -48,7 +49,7 @@ const Navbar = () => {
 
         {/* Desktop */}
         <nav className="hidden items-center gap-8 md:flex" aria-label="Principal">
-          <Link to="/#sobre-mi" className="text-sm hover:text-primary transition-colors">
+          <Link to="/#sobre-mi" className="text-sm hover:text-primary transition-colors font-medium">
             Sobre mí
           </Link>
 
@@ -59,7 +60,7 @@ const Navbar = () => {
           >
             <button
               type="button"
-              className="flex items-center gap-1 text-sm hover:text-primary transition-colors"
+              className="flex items-center gap-1 text-sm hover:text-primary transition-colors font-medium"
               aria-haspopup="menu"
               aria-expanded={worksOpen}
             >
@@ -88,15 +89,22 @@ const Navbar = () => {
             )}
           </div>
 
-          <Link to="/#servicios" className="text-sm hover:text-primary transition-colors">
+          <Link to="/#servicios" className="text-sm hover:text-primary transition-colors font-medium">
             Servicios
           </Link>
-          <Link
-            to="/#contacto"
-            className="rounded-sm border border-foreground/80 px-4 py-2 text-sm text-foreground transition-colors hover:bg-foreground hover:text-background"
+
+          <motion.a whileHover={{
+            scale: 1.1,
+            // Will be used when gesture starts
+            transition: { duration: 0.1 }
+          }}
+            // Will be used when gesture ends
+            transition={{ duration: 0.5 }}
+            href="/#contacto"
+            className="rounded-sm bg-gray-900 px-6 py-3 text-sm font-medium text-zinc-50 transition-colors hover:bg-primary hover:text-primary-foreground"
           >
             Contacto
-          </Link>
+          </motion.a>
         </nav>
 
         {/* Mobile toggle */}

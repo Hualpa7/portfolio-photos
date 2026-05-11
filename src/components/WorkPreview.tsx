@@ -7,7 +7,7 @@ const WorkPreview = () => {
   return (
     <section id="trabajos" className="bg-muted/40 py-24 md:py-32">
       <div className="container-editorial">
-        <ScrollReveal variant="slideLeft"  duration={1} once={false}>
+        <ScrollReveal variant="slideLeft"  duration={1} once>
         <div className="flex items-end justify-between gap-6">
           <div>
             <p className="eyebrow text-lg">Trabajos</p>
@@ -22,7 +22,7 @@ const WorkPreview = () => {
           </ScrollReveal>
         </div>
         </ScrollReveal>
-        <ScrollReveal variant="slideUp" delay={0.1} duration={0.8} once={false}>
+        <ScrollReveal variant="slideUp" delay={0.1} duration={0.8} once>
         <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
             <li key={c.slug}>

@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { services } from "@/data/services";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Clock } from "lucide-react";
 
-// Horarios disponibles (configurable)
 const AVAILABLE_HOURS = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
 
 const schema = z.object({
@@ -23,15 +22,8 @@ const schema = z.object({
 type FormState = z.infer<typeof schema>;
 
 const initial: FormState = {
-  nombre: "",
-  apellido: "",
-  email: "",
-  telefono: "",
-  tipo_servicio: "",
-  fecha: "",
-  horario: "",
-  presupuesto: "",
-  mensaje: "",
+  nombre: "", apellido: "", email: "", telefono: "",
+  tipo_servicio: "", fecha: "", horario: "", presupuesto: "", mensaje: "",
 };
 
 const inputCls =
@@ -44,9 +36,10 @@ const ContactForm = () => {
   const [loading, setLoading] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [bookedHours, setBookedHours] = useState<string[]>([]);
+  const [availabilityLoaded, setAvailabilityLoaded] = useState(false);
   const [minDate, setMinDate] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
 
-  // Establecer fecha mínima (hoy)
   useEffect(() => {
     const today = new Date();
     setMinDate(today.toISOString().split("T")[0]);
@@ -55,45 +48,62 @@ const ContactForm = () => {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setData((s) => ({ ...s, [k]: v }));
 
-  // Cargar horarios disponibles cuando cambia la fecha
+  // ─── Disponibilidad por fecha ────────────────────────────────────────────────
   useEffect(() => {
     if (!data.fecha) {
       setBookedHours([]);
+      setAvailabilityLoaded(false);
       return;
     }
 
-    const checkAvailability = async () => {
+    // Cancelar fetch anterior si el usuario cambia la fecha rápido
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+
+    const check = async () => {
       setCheckingAvailability(true);
+      setAvailabilityLoaded(false);
+
       try {
+        // Trae TODOS los registros del día que no estén cancelados
         const { data: bookings, error } = await supabase
           .from("contacts")
-          .select("horario")
+          .select("horario, status")
           .eq("fecha", data.fecha)
-          .eq("status", "confirmed");
+          .neq("status", "cancelled"); // excluir sólo cancelados
 
         if (error) throw error;
 
-        const bookedHoursList = bookings.map((b) => b.horario).filter(Boolean);
-        setBookedHours(bookedHoursList);
-        
-        // Limpiar horario si estaba seleccionado
-        if (data.horario && bookedHoursList.includes(data.horario)) {
+        const booked = bookings
+          .map((b) => b.horario)
+          .filter(Boolean) as string[];
+
+        setBookedHours(booked);
+
+        // Si el horario que tenía elegido quedó ocupado, lo limpia
+        if (data.horario && booked.includes(data.horario)) {
           set("horario", "");
-          toast.info("El horario seleccionado ya no está disponible");
+          toast.info("El horario seleccionado ya no está disponible para ese día.");
         }
-      } catch (err) {
-        console.error("Error checking availability:", err);
+      } catch (err: unknown) {
+        if ((err as { name?: string }).name !== "AbortError") {
+          console.error("Error checking availability:", err);
+          toast.error("No pudimos verificar la disponibilidad. Intenta de nuevo.");
+        }
       } finally {
         setCheckingAvailability(false);
+        setAvailabilityLoaded(true);
       }
     };
 
-    checkAvailability();
-  }, [data.fecha]);
+    check();
+  }, [data.fecha]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ─── Submit ──────────────────────────────────────────────────────────────────
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(data);
+
     if (!parsed.success) {
       const fieldErrors: typeof errors = {};
       parsed.error.issues.forEach((i) => {
@@ -101,17 +111,23 @@ const ContactForm = () => {
         fieldErrors[k] = i.message;
       });
       setErrors(fieldErrors);
-      toast.error("Revisa los campos marcados.");
+      toast.error("Revisá los campos marcados.");
       return;
     }
+
+    // Verificación extra en frontend: horario aún libre
+    if (bookedHours.includes(parsed.data.horario)) {
+      toast.error("Ese horario ya fue reservado. Por favor elegí otro.");
+      set("horario", "");
+      return;
+    }
+
     setErrors({});
     setLoading(true);
 
     try {
       const d = parsed.data;
-      console.log("📤 Llamando Edge Function con datos:", d);
 
-      // Llamar a Edge Function
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/clever-service`,
         {
@@ -134,91 +150,93 @@ const ContactForm = () => {
         }
       );
 
-      const result = await response.json();
-      console.log("Respuesta Edge Function:", result);
-
-      if (!response.ok) {
-        throw new Error(result.error || "Error al procesar la reserva");
+      // ── Extraer el cuerpo SIEMPRE antes de evaluar ok ──────────────────────
+      let result: { success?: boolean; error?: string; message?: string } = {};
+      try {
+        result = await response.json();
+      } catch {
+        // respuesta vacía o no-JSON
       }
 
-      toast.success("¡Reserva confirmada! Te enviaremos un email de confirmación.");
+      if (!response.ok) {
+        // El mensaje de error viene del backend en result.error
+        const backendMsg =
+          result?.error ||
+          `Error del servidor (${response.status} ${response.statusText})`;
+        throw new Error(backendMsg);
+      }
+
+      toast.success("¡Solicitud enviada! Te confirmaremos en menos de 24 horas.");
       setData(initial);
       setBookedHours([]);
-    } catch (err) {
+      setAvailabilityLoaded(false);
+
+      // Refresca disponibilidad del día para reflejar la nueva reserva
+      if (d.fecha) {
+        setData((prev) => ({ ...prev, fecha: d.fecha }));
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Error desconocido al procesar la reserva.";
       console.error("Error al reservar:", err);
-      const message = err instanceof Error ? err.message : "Error desconocido";
-      toast.error(`No pudimos procesar tu reserva: ${message}`);
+      toast.error(message);
+
+      // Si el error es de horario ocupado (409), limpia el campo
+      if (message.toLowerCase().includes("horario") || message.includes("409")) {
+        set("horario", "");
+        // Refrescar disponibilidad
+        setData((prev) => ({ ...prev, fecha: prev.fecha }));
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const freeHours = AVAILABLE_HOURS.filter((h) => !bookedHours.includes(h));
+  const allBooked = availabilityLoaded && data.fecha && freeHours.length === 0;
+
+  // ─── Render ──────────────────────────────────────────────────────────────────
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-5 sm:grid-cols-2">
+      {/* Nombre */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="nombre" className={labelCls}>Nombre *</label>
-        <input
-          id="nombre"
-          className={inputCls}
-          value={data.nombre}
+        <input id="nombre" className={inputCls} value={data.nombre}
           onChange={(e) => set("nombre", e.target.value)}
-          aria-invalid={!!errors.nombre}
-          required
-          disabled={loading}
-        />
+          aria-invalid={!!errors.nombre} disabled={loading} />
         {errors.nombre && <p className="text-xs text-destructive">{errors.nombre}</p>}
       </div>
 
+      {/* Apellido */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="apellido" className={labelCls}>Apellido *</label>
-        <input
-          id="apellido"
-          className={inputCls}
-          value={data.apellido}
+        <input id="apellido" className={inputCls} value={data.apellido}
           onChange={(e) => set("apellido", e.target.value)}
-          aria-invalid={!!errors.apellido}
-          required
-          disabled={loading}
-        />
+          aria-invalid={!!errors.apellido} disabled={loading} />
         {errors.apellido && <p className="text-xs text-destructive">{errors.apellido}</p>}
       </div>
 
+      {/* Email */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className={labelCls}>Email *</label>
-        <input
-          id="email"
-          type="email"
-          className={inputCls}
-          value={data.email}
+        <input id="email" type="email" className={inputCls} value={data.email}
           onChange={(e) => set("email", e.target.value)}
-          aria-invalid={!!errors.email}
-          required
-          disabled={loading}
-        />
+          aria-invalid={!!errors.email} disabled={loading} />
         {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
       </div>
 
+      {/* Teléfono */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="telefono" className={labelCls}>Teléfono</label>
-        <input
-          id="telefono"
-          type="tel"
-          className={inputCls}
-          value={data.telefono}
-          onChange={(e) => set("telefono", e.target.value)}
-          disabled={loading}
-        />
+        <input id="telefono" type="tel" className={inputCls} value={data.telefono}
+          onChange={(e) => set("telefono", e.target.value)} disabled={loading} />
       </div>
 
+      {/* Tipo de servicio */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="tipo_servicio" className={labelCls}>Tipo de servicio</label>
-        <select
-          id="tipo_servicio"
-          className={inputCls}
-          value={data.tipo_servicio}
-          onChange={(e) => set("tipo_servicio", e.target.value)}
-          disabled={loading}
-        >
+        <select id="tipo_servicio" className={inputCls} value={data.tipo_servicio}
+          onChange={(e) => set("tipo_servicio", e.target.value)} disabled={loading}>
           <option value="">Selecciona...</option>
           {services.map((s) => (
             <option key={s.id} value={s.name}>{s.name}</option>
@@ -226,88 +244,89 @@ const ContactForm = () => {
         </select>
       </div>
 
+      {/* Fecha */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="fecha" className={labelCls}>Fecha *</label>
-        <input
-          id="fecha"
-          type="date"
-          className={inputCls}
-          value={data.fecha}
+        <input id="fecha" type="date" className={inputCls} value={data.fecha}
           onChange={(e) => set("fecha", e.target.value)}
-          min={minDate}
-          aria-invalid={!!errors.fecha}
-          disabled={loading}
-        />
+          min={minDate} aria-invalid={!!errors.fecha} disabled={loading} />
         {errors.fecha && <p className="text-xs text-destructive">{errors.fecha}</p>}
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      {/* Horario — ocupa columna completa en mobile, mitad en sm */}
+      <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label htmlFor="horario" className={labelCls}>Horario *</label>
-        <div className="flex items-center gap-2">
-          <select
-            id="horario"
-            className={inputCls}
-            value={data.horario}
-            onChange={(e) => set("horario", e.target.value)}
-            aria-invalid={!!errors.horario}
-            disabled={loading || checkingAvailability || !data.fecha}
-          >
-            <option value="">
-              {!data.fecha ? "Selecciona una fecha primero" : "Selecciona..."}
-            </option>
-            {AVAILABLE_HOURS.filter((hour) => !bookedHours.includes(hour)).map((hour) => (
-              <option key={hour} value={hour}>
-                {hour}
-              </option>
-            ))}
-          </select>
-          {checkingAvailability && (
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          )}
-        </div>
-        {errors.horario && <p className="text-xs text-destructive">{errors.horario}</p>}
-        {data.fecha && AVAILABLE_HOURS.filter((hour) => !bookedHours.includes(hour)).length === 0 && !checkingAvailability && (
-          <p className="flex items-center gap-1 text-xs text-amber-600">
-            <AlertCircle className="h-3 w-3" /> No hay horarios disponibles para esta fecha
+
+        {!data.fecha ? (
+          <p className="flex items-center gap-1.5 text-xs text-foreground/50 py-2.5">
+            <Clock className="h-3.5 w-3.5" /> Seleccioná una fecha para ver los horarios disponibles
           </p>
+        ) : checkingAvailability ? (
+          <div className="flex items-center gap-2 py-2.5 text-xs text-foreground/60">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Verificando disponibilidad…
+          </div>
+        ) : allBooked ? (
+          <p className="flex items-center gap-1.5 text-xs text-amber-600 py-2.5">
+            <AlertCircle className="h-3.5 w-3.5" />
+            No hay horarios disponibles para este día. Probá con otra fecha.
+          </p>
+        ) : (
+          /* Grid de botones de horario — más visual que un select */
+          <div className="grid grid-cols-4 gap-2">
+            {AVAILABLE_HOURS.map((hour) => {
+              const isBooked = bookedHours.includes(hour);
+              const isSelected = data.horario === hour;
+              return (
+                <button
+                  key={hour}
+                  type="button"
+                  disabled={isBooked || loading}
+                  onClick={() => set("horario", hour)}
+                  className={[
+                    "rounded-sm border px-2 py-2 text-xs font-medium transition-all",
+                    isBooked
+                      ? "border-input bg-input/40 text-foreground/30 line-through cursor-not-allowed"
+                      : isSelected
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-input bg-background text-foreground/80 hover:border-primary hover:text-primary",
+                  ].join(" ")}
+                >
+                  {hour}
+                </button>
+              );
+            })}
+          </div>
         )}
+
+        {errors.horario && <p className="text-xs text-destructive">{errors.horario}</p>}
       </div>
 
+      {/* Presupuesto */}
       <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label htmlFor="presupuesto" className={labelCls}>Presupuesto aproximado</label>
-        <input
-          id="presupuesto"
-          className={inputCls}
-          placeholder="Ej. $200.000"
+        <input id="presupuesto" className={inputCls} placeholder="Ej. $200.000"
           value={data.presupuesto}
-          onChange={(e) => set("presupuesto", e.target.value)}
-          disabled={loading}
-        />
+          onChange={(e) => set("presupuesto", e.target.value)} disabled={loading} />
       </div>
 
+      {/* Mensaje */}
       <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label htmlFor="mensaje" className={labelCls}>Mensaje *</label>
-        <textarea
-          id="mensaje"
-          rows={5}
-          className={inputCls}
-          value={data.mensaje}
+        <textarea id="mensaje" rows={5} className={inputCls} value={data.mensaje}
           onChange={(e) => set("mensaje", e.target.value)}
-          aria-invalid={!!errors.mensaje}
-          required
-          disabled={loading}
-        />
+          aria-invalid={!!errors.mensaje} disabled={loading} />
         {errors.mensaje && <p className="text-xs text-destructive">{errors.mensaje}</p>}
       </div>
 
+      {/* Submit */}
       <div className="sm:col-span-2">
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !!allBooked}
           className="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {loading ? "Procesando reserva..." : "Confirmar reserva"}
+          {loading ? "Procesando reserva…" : "Confirmar reserva"}
         </button>
       </div>
     </form>

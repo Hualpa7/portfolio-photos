@@ -107,7 +107,7 @@ const CategoryPage = ({ category }: CategoryPageProps) => {
                 className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100"
                 initial={false}
               >
-                <span className="text-white text-sm font-medium">Ver en grande</span>
+                <span className="text-white text-sm font-medium">Ver completa</span>
               </motion.div>
             </motion.figure>
           ))}
