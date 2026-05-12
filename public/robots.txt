@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://portfolio-photos-ii4s.vercel.app/sitemap.xml
