@@ -11,7 +11,7 @@ export const services: Service[] = [
   {
     id: "bodas",
     name: "Bodas",
-    price: "$120.000",
+    price: "$150.000",
     description: "Cobertura integral del evento con entrega editada en alta resolución.",
     includes: ["Hasta 4 horas de cobertura", "Mínimo 100 fotos editadas"],
     conditions: ["Hora extra: $30.000", "Reserva con anticipo"],
@@ -19,7 +19,7 @@ export const services: Service[] = [
   {
     id: "cumpleanos",
     name: "Cumpleaños",
-    price: "$100.000",
+    price: "$120.000",
     description: "Cobertura completa de la celebración con entrega rápida.",
     includes: ["Mínimo 100 fotos editadas", "Hasta 3 horas de cobertura"],
     conditions: ["Hora extra: $30.000"],
@@ -35,9 +35,9 @@ export const services: Service[] = [
   {
     id: "sesiones",
     name: "Sesiones",
-    price: "$30.000",
+    price: "$40.000",
     description: "Sesión personal, de pareja o familiar en exteriores.",
-    includes: ["1 hora de sesión", "Mínimo 25 fotos editadas"],
+    includes: ["1 hora de sesión", "Mínimo 30 fotos editadas"],
     conditions: ["Cambios de vestuario incluidos"],
   },
   {
